@@ -2,7 +2,6 @@ import { MODULE_ID } from "./scripts/constants/module.js";
 
 /**
  * Available transition types for tile animations
- * @type {Object}
  */
 const TRANSITION_TYPES = {
     NONE: "none",
@@ -15,7 +14,7 @@ const TRANSITION_TYPES = {
     SLIDE_FROM_BOTTOM: "slide_from_bottom"
 };
 
-// Store previous visibility states in memory (not in tile flags)
+// Store previous visibility states in memory
 const tileVisibilityStates = new Map();
 
 // Track tiles that are currently animating to prevent multiple animations
@@ -23,9 +22,6 @@ const animatingTiles = new Set();
 
 /**
  * Hook to add the fieldset in tile configuration
- * @param {Object} app - The TileConfig application instance
- * @param {HTMLElement} html - The HTML element of the configuration form
- * @param {Object} data - The form data
  */
 Hooks.on("renderTileConfig", (app, html, data) => {
     const currentTransition = app.document.getFlag(MODULE_ID, "transitionType") ?? TRANSITION_TYPES.NONE;
@@ -88,12 +84,11 @@ Hooks.on("renderTileConfig", (app, html, data) => {
     </fieldset>
     `;
     
-    // Insert after the texture.tint field
+    // Insert the form into the appearance tab
     const tab = html.querySelector('.tab[data-tab="appearance"]');
     if (tab) {
         tab.insertAdjacentHTML('beforeend', formHtml);
         html.querySelector('.window-content').style.overflow = 'auto';
-        // Add event listener to update the display value
         const durationInput = html.querySelector(`[name="flags.${MODULE_ID}.transitionDuration"]`);
         const durationDisplay = durationInput?.nextElementSibling;
         if (durationInput && durationDisplay) {
@@ -101,8 +96,7 @@ Hooks.on("renderTileConfig", (app, html, data) => {
                 durationDisplay.textContent = `${e.target.value}s`;
             });
         }
-        
-        // Add event listener for movement intensity
+
         const intensityInput = html.querySelector(`[name="flags.${MODULE_ID}.movementIntensity"]`);
         const intensityDisplay = intensityInput?.nextElementSibling;
         if (intensityInput && intensityDisplay) {
@@ -118,14 +112,13 @@ Hooks.on("renderTileConfig", (app, html, data) => {
 });
 
 /**
- * Hook to handle animations when tiles are refreshed (appearance/disappearance)
- * @param {Tile} tile - The tile object
+ * Hook to handle animations when tiles are refreshed
  */
 Hooks.on("refreshTile", (tile) => {
     const transitionType = tile.document.getFlag(MODULE_ID, "transitionType");
     
     if (!transitionType || transitionType === TRANSITION_TYPES.NONE) {
-        return; // No animation needed
+        return;
     }
     
     // Check if tile and mesh are available
@@ -142,53 +135,39 @@ Hooks.on("refreshTile", (tile) => {
     const isVisible = tile.document.hidden === false;
     const wasVisible = tileVisibilityStates.get(tile.id);
     
-    // Update the visibility state in memory
     tileVisibilityStates.set(tile.id, isVisible);
     
-    // If visibility changed, trigger animation
+    // Only trigger animation if visibility actually changed
     if (wasVisible !== undefined && wasVisible !== isVisible) {
         if (isVisible) {
-            // Tile became visible - play entrance animation
+            // Tile became visible - trigger entrance animation
             applyTileAnimation(tile, transitionType, true);
         } else {
-            // Tile became hidden - play exit animation
-            
-            // Temporarily make tile visible for animation by manipulating the mesh
+            // Tile became hidden - trigger exit animation
+            // Temporarily make tile visible for exit animation
             tile.mesh.visible = true;
             
             applyTileAnimation(tile, transitionType, false, () => {
-                // Hide tile after animation completes by manipulating the mesh
+                // Hide tile after exit animation completes
                 tile.mesh.visible = false;
             });
         }
     }
 });
 
-/**
- * Hook to handle animations when tiles are updated
- * @param {TileDocument} tile - The tile document
- * @param {Object} updates - The update data
- */
-Hooks.on("updateTile", (tile, updates) => {
-    // This hook is no longer needed since we use current values at animation time
-});
+
 
 /**
  * Hook to modify the tile HUD when it's rendered
- * @param {TileHUD} hud - The tile HUD application
- * @param {HTMLElement} html - The HTML element of the HUD
- * @param {Object} data - The HUD data
  */
 Hooks.on("renderTileHUD", (hud, html, data) => {
-    // Check if this tile is currently animating
     const visibilityButton = html.querySelector('[data-action="visibility"]');
 
     if (animatingTiles.has(hud.object.id)) {
-        // Disable the visibility toggle button
         if (visibilityButton) {
             visibilityButton.disabled = true;
         }
-    }else{
+    } else {
         if (visibilityButton) {
             visibilityButton.disabled = false;
         }
@@ -197,10 +176,8 @@ Hooks.on("renderTileHUD", (hud, html, data) => {
 
 /**
  * Clean up visibility states when tiles are destroyed
- * @param {Tile} tile - The tile object being destroyed
  */
 Hooks.on("destroyTile", (tile) => {
-    // Remove from memory when tile is destroyed
     tileVisibilityStates.delete(tile.id);
     animatingTiles.delete(tile.id);
     updateTileHUDVisibility(tile.id, false);
@@ -212,19 +189,14 @@ Hooks.on("destroyTile", (tile) => {
  * @param {boolean} isAnimating - Whether the tile is currently animating
  */
 function updateTileHUDVisibility(tileId, isAnimating) {
-    // Find the tile object
+
     const btn = document.querySelector(`#tile-hud [data-action="visibility"]`);
     if (!btn) return;
     
-    // Check if the tile has a HUD and if it's currently rendered
-    if (btn) {
-        if (isAnimating) {
-            // Disable the button during animation
-            btn.disabled = true;
-        } else {
-            // Re-enable the button after animation
-            btn.disabled = false;
-        }
+    if (isAnimating) {
+        btn.disabled = true;
+    } else {
+        btn.disabled = false;
     }
 }
 
@@ -236,7 +208,6 @@ function updateTileHUDVisibility(tileId, isAnimating) {
  * @param {Function} onComplete - Callback function when animation completes (for disappearance)
  */
 function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null) {
-    // Additional safety checks
     if (!tile) {
         console.log('SmoothTileTransition: Tile object is null');
         if (onComplete) onComplete();
@@ -255,35 +226,22 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
         return;
     }
     
-    // Get duration from tile flags, default to 1 second
     const duration = (tile.document.getFlag(MODULE_ID, "transitionDuration") ?? 1.0) * 1000;
-    
-    // Get movement intensity from tile flags, default to 10%
     const movementIntensity = (tile.document.getFlag(MODULE_ID, "movementIntensity") ?? 10) / 100;
-    
-    // Get timing function from tile flags, default to "ease"
     const timingFunction = tile.document.getFlag(MODULE_ID, "timingFunction") ?? "ease";
     
-    // Mark tile as animating
     animatingTiles.add(tile.id);
-    
-    // Update HUD if it's currently rendered
     updateTileHUDVisibility(tile.id, true);
     
-    // Store current scale and opacity values from the tile (these are our "original" values for this animation)
     const originalScale = tile.mesh.scale ? { x: tile.mesh.scale.x, y: tile.mesh.scale.y } : null;
     const originalOpacity = tile.document.alpha ?? 1.0;
-    
-    // For disappearance animations, capture the current opacity before any modifications
     const currentOpacity = isAppearing ? 0 : tile.document.alpha;
     
-    // Reset properties to current values with additional safety checks
+    // Initialize tile properties for animation
     try {
         if (isAppearing) {
-            // For appearance, start from 0 opacity
             tile.mesh.alpha = 0;
         }
-        // Don't reset opacity for disappearance - keep current value
         if (tile.mesh.scale && originalScale) {
             tile.mesh.scale.set(originalScale.x, originalScale.y);
         }
@@ -297,15 +255,14 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
     switch (transitionType) {
         case TRANSITION_TYPES.FADE_IN_OUT:
             if (isAppearing) {
-                // Fade In on appearance
+                // Simple fade in from 0 to original opacity
                 animateProperty(tile.mesh, 'alpha', 0, originalOpacity, duration, timingFunction, () => {
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
                 });
             } else {
-                // Fade Out on disappearance - start from current opacity
+                // Simple fade out from current opacity to 0
                 animateProperty(tile.mesh, 'alpha', currentOpacity, 0, duration, timingFunction, () => {
-                    // Restore original values after fade out
                     try {
                         tile.mesh.alpha = originalOpacity;
                         if (tile.mesh.scale && originalScale) {
@@ -323,7 +280,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.ZOOM_IN_OUT:
             if (isAppearing) {
-                // Zoom In + Fade In on appearance (1-intensity -> 1.0)
+                // Zoom in from smaller scale to normal scale
                 if (tile.mesh.scale && originalScale) {
                     const startScale = 1 - movementIntensity;
                     tile.mesh.alpha = 0;
@@ -337,10 +294,9 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 }
             } else {
-                // Zoom Out + Fade Out on disappearance (1.0 -> 1-intensity)
+                // Zoom out from normal scale to smaller scale
                 if (tile.mesh.scale && originalScale) {
                     animateZoomAndFade(tile.mesh, 1, 1 - movementIntensity, currentOpacity, 0, duration, originalScale, timingFunction, () => {
-                        // Restore original values after zoom out
                         try {
                             tile.mesh.alpha = originalOpacity;
                             tile.mesh.scale.set(originalScale.x, originalScale.y);
@@ -361,7 +317,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.ZOOM_OUT_IN:
             if (isAppearing) {
-                // Zoom Out + Fade In on appearance (1+intensity -> 1.0)
+                // Zoom in from larger scale to normal scale
                 if (tile.mesh.scale && originalScale) {
                     const startScale = 1 + movementIntensity;
                     tile.mesh.alpha = 0;
@@ -375,10 +331,9 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 }
             } else {
-                // Zoom In + Fade Out on disappearance (1.0 -> 1+intensity)
+                // Zoom out from normal scale to larger scale
                 if (tile.mesh.scale && originalScale) {
                     animateZoomAndFade(tile.mesh, 1, 1 + movementIntensity, currentOpacity, 0, duration, originalScale, timingFunction, () => {
-                        // Restore original values after zoom in
                         try {
                             tile.mesh.alpha = originalOpacity;
                             tile.mesh.scale.set(originalScale.x, originalScale.y);
@@ -399,7 +354,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.SLIDE_FROM_LEFT:
             if (isAppearing) {
-                // Slide in from left
+                // Slide in from left side of tile
                 const originalX = tile.mesh.x;
                 tile.mesh.alpha = 0;
                 tile.mesh.x = originalX - (tile.mesh.width * movementIntensity);
@@ -408,11 +363,10 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 });
             } else {
-                // Slide out to left
+                // Slide out to left side of tile
                 const originalX = tile.mesh.x;
                 const targetX = originalX - (tile.mesh.width * movementIntensity);
                 animateSlideAndFade(tile.mesh, 'x', originalX, targetX, currentOpacity, 0, duration, timingFunction, () => {
-                    // Restore original values
                     try {
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.x = originalX;
@@ -428,7 +382,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.SLIDE_FROM_RIGHT:
             if (isAppearing) {
-                // Slide in from right
+                // Slide in from right side of tile
                 const originalX = tile.mesh.x;
                 tile.mesh.alpha = 0;
                 tile.mesh.x = originalX + (tile.mesh.width * movementIntensity);
@@ -437,11 +391,10 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 });
             } else {
-                // Slide out to right
+                // Slide out to right side of tile
                 const originalX = tile.mesh.x;
                 const targetX = originalX + (tile.mesh.width * movementIntensity);
                 animateSlideAndFade(tile.mesh, 'x', originalX, targetX, currentOpacity, 0, duration, timingFunction, () => {
-                    // Restore original values
                     try {
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.x = originalX;
@@ -457,7 +410,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.SLIDE_FROM_TOP:
             if (isAppearing) {
-                // Slide in from top
+                // Slide in from top of tile
                 const originalY = tile.mesh.y;
                 tile.mesh.alpha = 0;
                 tile.mesh.y = originalY - (tile.mesh.height * movementIntensity);
@@ -466,11 +419,10 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 });
             } else {
-                // Slide out to top
+                // Slide out to top of tile
                 const originalY = tile.mesh.y;
                 const targetY = originalY - (tile.mesh.height * movementIntensity);
                 animateSlideAndFade(tile.mesh, 'y', originalY, targetY, currentOpacity, 0, duration, timingFunction, () => {
-                    // Restore original values
                     try {
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.y = originalY;
@@ -486,7 +438,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.SLIDE_FROM_BOTTOM:
             if (isAppearing) {
-                // Slide in from bottom
+                // Slide in from bottom of tile
                 const originalY = tile.mesh.y;
                 tile.mesh.alpha = 0;
                 tile.mesh.y = originalY + (tile.mesh.height * movementIntensity);
@@ -495,11 +447,10 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 });
             } else {
-                // Slide out to bottom
+                // Slide out to bottom of tile
                 const originalY = tile.mesh.y;
                 const targetY = originalY + (tile.mesh.height * movementIntensity);
                 animateSlideAndFade(tile.mesh, 'y', originalY, targetY, currentOpacity, 0, duration, timingFunction, () => {
-                    // Restore original values
                     try {
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.y = originalY;
@@ -531,7 +482,7 @@ function animateProperty(object, property, from, to, duration, timingFunction, o
     const endValue = to;
     const change = endValue - startValue;
     
-    // Easing functions
+    // Define easing functions
     const easingFunctions = {
         linear: (t) => t,
         ease: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
@@ -543,25 +494,26 @@ function animateProperty(object, property, from, to, duration, timingFunction, o
         }
     };
     
-    // For opacity (fade), always use ease to avoid weird effects
-    // For other properties (scale, etc.), use the specified timing function
+    // Use ease for opacity to avoid weird effects, specified function for other properties
     const effectiveTimingFunction = (property === 'alpha') ? 'ease' : timingFunction;
     const easing = easingFunctions[effectiveTimingFunction] || easingFunctions.ease;
     
     function animate() {
-        // Check if object still exists
+        // Safety check for destroyed objects
         if (!object || object.destroyed) {
             if (onComplete) onComplete();
             return;
         }
         
+        // Calculate animation progress
         const currentTime = Date.now();
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Apply timing function
+        // Apply easing function to get smooth animation curve
         const easedProgress = easing(progress);
         
+        // Update object property with interpolated value
         try {
             object[property] = startValue + change * easedProgress;
         } catch (error) {
@@ -570,6 +522,7 @@ function animateProperty(object, property, from, to, duration, timingFunction, o
             return;
         }
         
+        // Continue animation or complete
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
@@ -597,7 +550,7 @@ function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, dura
     const scaleChange = scaleTo - scaleFrom;
     const alphaChange = alphaTo - alphaFrom;
     
-    // Easing functions
+    // Define easing functions for smooth animations
     const easingFunctions = {
         linear: (t) => t,
         ease: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
@@ -612,22 +565,25 @@ function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, dura
     const easing = easingFunctions[timingFunction] || easingFunctions.ease;
     
     function animate() {
-        // Check if object still exists
+        // Safety check for destroyed objects
         if (!object || object.destroyed) {
             if (onComplete) onComplete();
             return;
         }
         
+        // Calculate animation progress
         const currentTime = Date.now();
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Apply timing function
+        // Apply easing function to get smooth animation curve
         const easedProgress = easing(progress);
         
+        // Calculate current scale and alpha values
         const currentScale = scaleFrom + scaleChange * easedProgress;
         const currentAlpha = alphaFrom + alphaChange * easedProgress;
         
+        // Update both scale and alpha simultaneously
         try {
             if (object.scale && originalScale) {
                 object.scale.set(originalScale.x * currentScale, originalScale.y * currentScale);
@@ -639,6 +595,7 @@ function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, dura
             return;
         }
         
+        // Continue animation or complete
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
@@ -666,7 +623,7 @@ function animateSlideAndFade(object, property, slideFrom, slideTo, alphaFrom, al
     const slideChange = slideTo - slideFrom;
     const alphaChange = alphaTo - alphaFrom;
     
-    // Easing functions
+    // Define easing functions for smooth animations
     const easingFunctions = {
         linear: (t) => t,
         ease: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
@@ -678,28 +635,30 @@ function animateSlideAndFade(object, property, slideFrom, slideTo, alphaFrom, al
         }
     };
     
-    // Use specified timing function for slide, but always use ease for alpha
     const slideEasing = easingFunctions[timingFunction] || easingFunctions.ease;
     const alphaEasing = easingFunctions.ease;
     
     function animate() {
-        // Check if object still exists
+        // Safety check for destroyed objects
         if (!object || object.destroyed) {
             if (onComplete) onComplete();
             return;
         }
         
+        // Calculate animation progress
         const currentTime = Date.now();
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Apply different timing functions for slide and alpha
+        // Apply different easing functions for slide and alpha
         const slideEasedProgress = slideEasing(progress);
         const alphaEasedProgress = alphaEasing(progress);
         
+        // Calculate current slide position and alpha value
         const currentSlideValue = slideFrom + slideChange * slideEasedProgress;
         const currentAlpha = alphaFrom + alphaChange * alphaEasedProgress;
         
+        // Update both position and alpha simultaneously
         try {
             object[property] = currentSlideValue;
             object.alpha = currentAlpha;
@@ -709,6 +668,7 @@ function animateSlideAndFade(object, property, slideFrom, slideTo, alphaFrom, al
             return;
         }
         
+        // Continue animation or complete
         if (progress < 1) {
             requestAnimationFrame(animate);
         } else {
