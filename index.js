@@ -8,7 +8,11 @@ const TRANSITION_TYPES = {
     NONE: "none",
     FADE_IN_OUT: "fade_in_out",
     ZOOM_IN_OUT: "zoom_in_out",
-    ZOOM_OUT_IN: "zoom_out_in"
+    ZOOM_OUT_IN: "zoom_out_in",
+    SLIDE_FROM_LEFT: "slide_from_left",
+    SLIDE_FROM_RIGHT: "slide_from_right",
+    SLIDE_FROM_TOP: "slide_from_top",
+    SLIDE_FROM_BOTTOM: "slide_from_bottom"
 };
 
 // Store previous visibility states in memory (not in tile flags)
@@ -38,6 +42,10 @@ Hooks.on("renderTileConfig", (app, html, data) => {
                     <option value="${TRANSITION_TYPES.FADE_IN_OUT}" ${currentTransition === TRANSITION_TYPES.FADE_IN_OUT ? 'selected' : ''}>Fade In/Out</option>
                     <option value="${TRANSITION_TYPES.ZOOM_IN_OUT}" ${currentTransition === TRANSITION_TYPES.ZOOM_IN_OUT ? 'selected' : ''}>Zoom In/Out</option>
                     <option value="${TRANSITION_TYPES.ZOOM_OUT_IN}" ${currentTransition === TRANSITION_TYPES.ZOOM_OUT_IN ? 'selected' : ''}>Zoom Out/In</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_LEFT}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_LEFT ? 'selected' : ''}>Slide From Left</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_RIGHT}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_RIGHT ? 'selected' : ''}>Slide From Right</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_TOP}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_TOP ? 'selected' : ''}>Slide From Top</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_BOTTOM}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_BOTTOM ? 'selected' : ''}>Slide From Bottom</option>
                 </select>
             </div>
         </div>
@@ -65,6 +73,16 @@ Hooks.on("renderTileConfig", (app, html, data) => {
                        step="1" 
                        style="flex: 10;">
                 <span style="text-align: center;">${app.document.getFlag(MODULE_ID, "movementIntensity") ?? 10}%</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="flags.${MODULE_ID}.timingFunction">Timing Function</label>
+            <div class="form-fields">
+                <select name="flags.${MODULE_ID}.timingFunction">
+                    <option value="ease" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "ease" ? 'selected' : ''}>Ease</option>
+                    <option value="linear" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "linear" ? 'selected' : ''}>Linear</option>
+                    <option value="bounce" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "bounce" ? 'selected' : ''}>Bounce</option>
+                </select>
             </div>
         </div>
     </fieldset>
@@ -249,6 +267,9 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
     // Get movement intensity from tile flags, default to 10%
     const movementIntensity = (tile.document.getFlag(MODULE_ID, "movementIntensity") ?? 10) / 100;
     
+    // Get timing function from tile flags, default to "ease"
+    const timingFunction = tile.document.getFlag(MODULE_ID, "timingFunction") ?? "ease";
+    
     // Mark tile as animating
     animatingTiles.add(tile.id);
     
@@ -283,13 +304,13 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
         case TRANSITION_TYPES.FADE_IN_OUT:
             if (isAppearing) {
                 // Fade In on appearance
-                animateProperty(tile.mesh, 'alpha', 0, originalOpacity, duration, () => {
+                animateProperty(tile.mesh, 'alpha', 0, originalOpacity, duration, timingFunction, () => {
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
                 });
             } else {
                 // Fade Out on disappearance - start from current opacity
-                animateProperty(tile.mesh, 'alpha', currentOpacity, 0, duration, () => {
+                animateProperty(tile.mesh, 'alpha', currentOpacity, 0, duration, timingFunction, () => {
                     // Restore original values after fade out
                     try {
                         tile.mesh.alpha = originalOpacity;
@@ -313,7 +334,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     const startScale = 1 - movementIntensity;
                     tile.mesh.alpha = 0;
                     tile.mesh.scale.set(originalScale.x * startScale, originalScale.y * startScale);
-                    animateZoomAndFade(tile.mesh, startScale, 1, 0, originalOpacity, duration, originalScale, () => {
+                    animateZoomAndFade(tile.mesh, startScale, 1, 0, originalOpacity, duration, originalScale, timingFunction, () => {
                         animatingTiles.delete(tile.id);
                         updateTileHUDVisibility(tile.id, false);
                     });
@@ -324,7 +345,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             } else {
                 // Zoom Out + Fade Out on disappearance (1.0 -> 1-intensity)
                 if (tile.mesh.scale && originalScale) {
-                    animateZoomAndFade(tile.mesh, 1, 1 - movementIntensity, currentOpacity, 0, duration, originalScale, () => {
+                    animateZoomAndFade(tile.mesh, 1, 1 - movementIntensity, currentOpacity, 0, duration, originalScale, timingFunction, () => {
                         // Restore original values after zoom out
                         try {
                             tile.mesh.alpha = originalOpacity;
@@ -351,7 +372,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     const startScale = 1 + movementIntensity;
                     tile.mesh.alpha = 0;
                     tile.mesh.scale.set(originalScale.x * startScale, originalScale.y * startScale);
-                    animateZoomAndFade(tile.mesh, startScale, 1, 0, originalOpacity, duration, originalScale, () => {
+                    animateZoomAndFade(tile.mesh, startScale, 1, 0, originalOpacity, duration, originalScale, timingFunction, () => {
                         animatingTiles.delete(tile.id);
                         updateTileHUDVisibility(tile.id, false);
                     });
@@ -362,7 +383,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             } else {
                 // Zoom In + Fade Out on disappearance (1.0 -> 1+intensity)
                 if (tile.mesh.scale && originalScale) {
-                    animateZoomAndFade(tile.mesh, 1, 1 + movementIntensity, currentOpacity, 0, duration, originalScale, () => {
+                    animateZoomAndFade(tile.mesh, 1, 1 + movementIntensity, currentOpacity, 0, duration, originalScale, timingFunction, () => {
                         // Restore original values after zoom in
                         try {
                             tile.mesh.alpha = originalOpacity;
@@ -381,6 +402,122 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                 }
             }
             break;
+            
+        case TRANSITION_TYPES.SLIDE_FROM_LEFT:
+            if (isAppearing) {
+                // Slide in from left
+                const originalX = tile.mesh.x;
+                tile.mesh.alpha = 0;
+                tile.mesh.x = originalX - (tile.mesh.width * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'x', tile.mesh.x, originalX, 0, originalOpacity, duration, timingFunction, () => {
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                });
+            } else {
+                // Slide out to left
+                const originalX = tile.mesh.x;
+                const targetX = originalX - (tile.mesh.width * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'x', originalX, targetX, currentOpacity, 0, duration, timingFunction, () => {
+                    // Restore original values
+                    try {
+                        tile.mesh.alpha = originalOpacity;
+                        tile.mesh.x = originalX;
+                    } catch (error) {
+                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                    }
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                    if (onComplete) onComplete();
+                });
+            }
+            break;
+            
+        case TRANSITION_TYPES.SLIDE_FROM_RIGHT:
+            if (isAppearing) {
+                // Slide in from right
+                const originalX = tile.mesh.x;
+                tile.mesh.alpha = 0;
+                tile.mesh.x = originalX + (tile.mesh.width * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'x', tile.mesh.x, originalX, 0, originalOpacity, duration, timingFunction, () => {
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                });
+            } else {
+                // Slide out to right
+                const originalX = tile.mesh.x;
+                const targetX = originalX + (tile.mesh.width * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'x', originalX, targetX, currentOpacity, 0, duration, timingFunction, () => {
+                    // Restore original values
+                    try {
+                        tile.mesh.alpha = originalOpacity;
+                        tile.mesh.x = originalX;
+                    } catch (error) {
+                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                    }
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                    if (onComplete) onComplete();
+                });
+            }
+            break;
+            
+        case TRANSITION_TYPES.SLIDE_FROM_TOP:
+            if (isAppearing) {
+                // Slide in from top
+                const originalY = tile.mesh.y;
+                tile.mesh.alpha = 0;
+                tile.mesh.y = originalY - (tile.mesh.height * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'y', tile.mesh.y, originalY, 0, originalOpacity, duration, timingFunction, () => {
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                });
+            } else {
+                // Slide out to top
+                const originalY = tile.mesh.y;
+                const targetY = originalY - (tile.mesh.height * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'y', originalY, targetY, currentOpacity, 0, duration, timingFunction, () => {
+                    // Restore original values
+                    try {
+                        tile.mesh.alpha = originalOpacity;
+                        tile.mesh.y = originalY;
+                    } catch (error) {
+                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                    }
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                    if (onComplete) onComplete();
+                });
+            }
+            break;
+            
+        case TRANSITION_TYPES.SLIDE_FROM_BOTTOM:
+            if (isAppearing) {
+                // Slide in from bottom
+                const originalY = tile.mesh.y;
+                tile.mesh.alpha = 0;
+                tile.mesh.y = originalY + (tile.mesh.height * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'y', tile.mesh.y, originalY, 0, originalOpacity, duration, timingFunction, () => {
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                });
+            } else {
+                // Slide out to bottom
+                const originalY = tile.mesh.y;
+                const targetY = originalY + (tile.mesh.height * movementIntensity);
+                animateSlideAndFade(tile.mesh, 'y', originalY, targetY, currentOpacity, 0, duration, timingFunction, () => {
+                    // Restore original values
+                    try {
+                        tile.mesh.alpha = originalOpacity;
+                        tile.mesh.y = originalY;
+                    } catch (error) {
+                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                    }
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                    if (onComplete) onComplete();
+                });
+            }
+            break;
     }
 }
 
@@ -391,13 +528,31 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
  * @param {number} from - Starting value
  * @param {number} to - Ending value
  * @param {number} duration - Animation duration in milliseconds
+ * @param {string} timingFunction - The timing function to use
  * @param {Function} onComplete - Callback function when animation completes
  */
-function animateProperty(object, property, from, to, duration, onComplete = null) {
+function animateProperty(object, property, from, to, duration, timingFunction, onComplete = null) {
     const startTime = Date.now();
     const startValue = from;
     const endValue = to;
     const change = endValue - startValue;
+    
+    // Easing functions
+    const easingFunctions = {
+        linear: (t) => t,
+        ease: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+        bounce: (t) => {
+            if (t < 1 / 2.75) return 7.5625 * t * t;
+            if (t < 2 / 2.75) return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            if (t < 2.5 / 2.75) return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+        }
+    };
+    
+    // For opacity (fade), always use ease to avoid weird effects
+    // For other properties (scale, etc.), use the specified timing function
+    const effectiveTimingFunction = (property === 'alpha') ? 'ease' : timingFunction;
+    const easing = easingFunctions[effectiveTimingFunction] || easingFunctions.ease;
     
     function animate() {
         // Check if object still exists
@@ -411,10 +566,8 @@ function animateProperty(object, property, from, to, duration, onComplete = null
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Easing easeInOut
-        const easedProgress = progress < 0.5 
-            ? 2 * progress * progress 
-            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        // Apply timing function
+        const easedProgress = easing(progress);
         
         try {
             object[property] = startValue + change * easedProgress;
@@ -443,12 +596,27 @@ function animateProperty(object, property, from, to, duration, onComplete = null
  * @param {number} alphaTo - Ending alpha value
  * @param {number} duration - Animation duration in milliseconds
  * @param {Object} originalScale - The original scale values
+ * @param {string} timingFunction - The timing function to use
  * @param {Function} onComplete - Callback function when animation completes
  */
-function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, duration, originalScale, onComplete = null) {
+function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, duration, originalScale, timingFunction, onComplete = null) {
     const startTime = Date.now();
     const scaleChange = scaleTo - scaleFrom;
     const alphaChange = alphaTo - alphaFrom;
+    
+    // Easing functions
+    const easingFunctions = {
+        linear: (t) => t,
+        ease: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+        bounce: (t) => {
+            if (t < 1 / 2.75) return 7.5625 * t * t;
+            if (t < 2 / 2.75) return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            if (t < 2.5 / 2.75) return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+        }
+    };
+    
+    const easing = easingFunctions[timingFunction] || easingFunctions.ease;
     
     function animate() {
         // Check if object still exists
@@ -462,10 +630,8 @@ function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, dura
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        // Easing easeInOut
-        const easedProgress = progress < 0.5 
-            ? 2 * progress * progress 
-            : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        // Apply timing function
+        const easedProgress = easing(progress);
         
         const currentScale = scaleFrom + scaleChange * easedProgress;
         const currentAlpha = alphaFrom + alphaChange * easedProgress;
@@ -477,6 +643,77 @@ function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, dura
             object.alpha = currentAlpha;
         } catch (error) {
             console.log('SmoothTileTransition: Error setting scale/alpha during animation:', error);
+            if (onComplete) onComplete();
+            return;
+        }
+        
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            if (onComplete) onComplete();
+        }
+    }
+    
+    animate();
+}
+
+/**
+ * Animate slide and fade simultaneously
+ * @param {Object} object - The object to animate
+ * @param {string} property - The property to animate (e.g., 'x', 'y')
+ * @param {number} slideFrom - Starting slide value
+ * @param {number} slideTo - Ending slide value
+ * @param {number} alphaFrom - Starting alpha value
+ * @param {number} alphaTo - Ending alpha value
+ * @param {number} duration - Animation duration in milliseconds
+ * @param {string} timingFunction - The timing function to use
+ * @param {Function} onComplete - Callback function when animation completes
+ */
+function animateSlideAndFade(object, property, slideFrom, slideTo, alphaFrom, alphaTo, duration, timingFunction, onComplete = null) {
+    const startTime = Date.now();
+    const slideChange = slideTo - slideFrom;
+    const alphaChange = alphaTo - alphaFrom;
+    
+    // Easing functions
+    const easingFunctions = {
+        linear: (t) => t,
+        ease: (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+        bounce: (t) => {
+            if (t < 1 / 2.75) return 7.5625 * t * t;
+            if (t < 2 / 2.75) return 7.5625 * (t -= 1.5 / 2.75) * t + 0.75;
+            if (t < 2.5 / 2.75) return 7.5625 * (t -= 2.25 / 2.75) * t + 0.9375;
+            return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
+        }
+    };
+    
+    // Use specified timing function for slide, but always use ease for alpha
+    const slideEasing = easingFunctions[timingFunction] || easingFunctions.ease;
+    const alphaEasing = easingFunctions.ease;
+    
+    function animate() {
+        // Check if object still exists
+        if (!object || object.destroyed) {
+            console.log('SmoothTileTransition: Animation stopped - object destroyed');
+            if (onComplete) onComplete();
+            return;
+        }
+        
+        const currentTime = Date.now();
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Apply different timing functions for slide and alpha
+        const slideEasedProgress = slideEasing(progress);
+        const alphaEasedProgress = alphaEasing(progress);
+        
+        const currentSlideValue = slideFrom + slideChange * slideEasedProgress;
+        const currentAlpha = alphaFrom + alphaChange * alphaEasedProgress;
+        
+        try {
+            object[property] = currentSlideValue;
+            object.alpha = currentAlpha;
+        } catch (error) {
+            console.log('SmoothTileTransition: Error setting slide/alpha during animation:', error);
             if (onComplete) onComplete();
             return;
         }
