@@ -33,24 +33,24 @@ Hooks.on("renderTileConfig", (app, html, data) => {
     
     const formHtml = `
     <fieldset>
-        <legend>Animation Transitions</legend>
+        <legend>${game.i18n.localize(`${MODULE_ID}.ui.animationTransitions`)}</legend>
         <div class="form-group">
-            <label for="flags.${MODULE_ID}.transitionType">Type</label>
+            <label for="flags.${MODULE_ID}.transitionType">${game.i18n.localize(`${MODULE_ID}.ui.type`)}</label>
             <div class="form-fields">
                 <select name="flags.${MODULE_ID}.transitionType">
-                    <option value="${TRANSITION_TYPES.NONE}" ${currentTransition === TRANSITION_TYPES.NONE ? 'selected' : ''}>None</option>
-                    <option value="${TRANSITION_TYPES.FADE_IN_OUT}" ${currentTransition === TRANSITION_TYPES.FADE_IN_OUT ? 'selected' : ''}>Fade In/Out</option>
-                    <option value="${TRANSITION_TYPES.ZOOM_IN_OUT}" ${currentTransition === TRANSITION_TYPES.ZOOM_IN_OUT ? 'selected' : ''}>Zoom In/Out</option>
-                    <option value="${TRANSITION_TYPES.ZOOM_OUT_IN}" ${currentTransition === TRANSITION_TYPES.ZOOM_OUT_IN ? 'selected' : ''}>Zoom Out/In</option>
-                    <option value="${TRANSITION_TYPES.SLIDE_FROM_LEFT}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_LEFT ? 'selected' : ''}>Slide From Left</option>
-                    <option value="${TRANSITION_TYPES.SLIDE_FROM_RIGHT}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_RIGHT ? 'selected' : ''}>Slide From Right</option>
-                    <option value="${TRANSITION_TYPES.SLIDE_FROM_TOP}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_TOP ? 'selected' : ''}>Slide From Top</option>
-                    <option value="${TRANSITION_TYPES.SLIDE_FROM_BOTTOM}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_BOTTOM ? 'selected' : ''}>Slide From Bottom</option>
+                    <option value="${TRANSITION_TYPES.NONE}" ${currentTransition === TRANSITION_TYPES.NONE ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.none`)}</option>
+                    <option value="${TRANSITION_TYPES.FADE_IN_OUT}" ${currentTransition === TRANSITION_TYPES.FADE_IN_OUT ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.fadeInOut`)}</option>
+                    <option value="${TRANSITION_TYPES.ZOOM_IN_OUT}" ${currentTransition === TRANSITION_TYPES.ZOOM_IN_OUT ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.zoomInOut`)}</option>
+                    <option value="${TRANSITION_TYPES.ZOOM_OUT_IN}" ${currentTransition === TRANSITION_TYPES.ZOOM_OUT_IN ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.zoomOutIn`)}</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_LEFT}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_LEFT ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.slideFromLeft`)}</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_RIGHT}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_RIGHT ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.slideFromRight`)}</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_TOP}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_TOP ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.slideFromTop`)}</option>
+                    <option value="${TRANSITION_TYPES.SLIDE_FROM_BOTTOM}" ${currentTransition === TRANSITION_TYPES.SLIDE_FROM_BOTTOM ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.slideFromBottom`)}</option>
                 </select>
             </div>
         </div>
         <div class="form-group">
-            <label for="flags.${MODULE_ID}.transitionDuration">Duration (seconds)</label>
+            <label for="flags.${MODULE_ID}.transitionDuration">${game.i18n.localize(`${MODULE_ID}.ui.duration`)}</label>
             <div class="form-fields">
                 <input type="range" 
                        name="flags.${MODULE_ID}.transitionDuration" 
@@ -63,7 +63,7 @@ Hooks.on("renderTileConfig", (app, html, data) => {
             </div>
         </div>
         <div class="form-group">
-            <label for="flags.${MODULE_ID}.movementIntensity">Movement Intensity (%)</label>
+            <label for="flags.${MODULE_ID}.movementIntensity">${game.i18n.localize(`${MODULE_ID}.ui.movementIntensity`)}</label>
             <div class="form-fields">
                 <input type="range" 
                        name="flags.${MODULE_ID}.movementIntensity" 
@@ -76,12 +76,12 @@ Hooks.on("renderTileConfig", (app, html, data) => {
             </div>
         </div>
         <div class="form-group">
-            <label for="flags.${MODULE_ID}.timingFunction">Timing Function</label>
+            <label for="flags.${MODULE_ID}.timingFunction">${game.i18n.localize(`${MODULE_ID}.ui.timingFunction`)}</label>
             <div class="form-fields">
                 <select name="flags.${MODULE_ID}.timingFunction">
-                    <option value="ease" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "ease" ? 'selected' : ''}>Ease</option>
-                    <option value="linear" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "linear" ? 'selected' : ''}>Linear</option>
-                    <option value="bounce" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "bounce" ? 'selected' : ''}>Bounce</option>
+                    <option value="ease" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "ease" ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.ease`)}</option>
+                    <option value="linear" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "linear" ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.linear`)}</option>
+                    <option value="bounce" ${(app.document.getFlag(MODULE_ID, "timingFunction") ?? "ease") === "bounce" ? 'selected' : ''}>${game.i18n.localize(`${MODULE_ID}.ui.bounce`)}</option>
                 </select>
             </div>
         </div>

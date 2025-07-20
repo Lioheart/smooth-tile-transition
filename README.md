@@ -7,6 +7,7 @@ A Foundry VTT module that adds smooth transition capabilities to tiles when togg
 - **Multiple Animation Transition Types**: Fade, zoom in/out, zoom out/in, slide from left, slide from right, slide from top, slide from bottom
 - **Customizable Settings**: Duration, easing, and movement intensity for each tile
 - **Triggers**: Animation transitions when toggling tile visibility state
+- **Multi-language support**: Available in English, French, Spanish, German, Italian, and Portuguese 
 
 ## Usage
 

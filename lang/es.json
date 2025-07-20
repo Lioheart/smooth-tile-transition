@@ -1,0 +1,22 @@
+{
+    "smooth-tile-transition": {
+        "ui": {
+            "animationTransitions": "Transiciones de Animación",
+            "type": "Tipo",
+            "none": "Ninguna",
+            "fadeInOut": "Aparecer/Desaparecer",
+            "zoomInOut": "Zoom Entrada/Salida",
+            "zoomOutIn": "Zoom Salida/Entrada",
+            "slideFromLeft": "Deslizar desde la izquierda",
+            "slideFromRight": "Deslizar desde la derecha",
+            "slideFromTop": "Deslizar desde arriba",
+            "slideFromBottom": "Deslizar desde abajo",
+            "duration": "Duración (segundos)",
+            "movementIntensity": "Intensidad del movimiento (%)",
+            "timingFunction": "Función de temporización",
+            "ease": "Suave",
+            "linear": "Lineal",
+            "bounce": "Rebote"
+        }
+    }
+} 
