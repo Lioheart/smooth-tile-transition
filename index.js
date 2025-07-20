@@ -112,7 +112,6 @@ Hooks.on("renderTileConfig", (app, html, data) => {
         }
         
         app.setPosition({ height: "auto" });
-        console.log('SmoothTileTransition: Fieldset added to tile configuration');
     } else {
         console.log('SmoothTileTransition: texture.tint field not found');
     }
@@ -123,7 +122,6 @@ Hooks.on("renderTileConfig", (app, html, data) => {
  * @param {Tile} tile - The tile object
  */
 Hooks.on("refreshTile", (tile) => {
-    console.log("SmoothTileTransition: Refresh tile", tile);
     const transitionType = tile.document.getFlag(MODULE_ID, "transitionType");
     
     if (!transitionType || transitionType === TRANSITION_TYPES.NONE) {
@@ -138,7 +136,6 @@ Hooks.on("refreshTile", (tile) => {
     
     // Check if tile is already animating
     if (animatingTiles.has(tile.id)) {
-        console.log(`SmoothTileTransition: Tile ${tile.id} is already animating, skipping`);
         return;
     }
     
@@ -152,11 +149,9 @@ Hooks.on("refreshTile", (tile) => {
     if (wasVisible !== undefined && wasVisible !== isVisible) {
         if (isVisible) {
             // Tile became visible - play entrance animation
-            console.log(`SmoothTileTransition: Entrance animation ${transitionType} for tile ${tile.id}`);
             applyTileAnimation(tile, transitionType, true);
         } else {
             // Tile became hidden - play exit animation
-            console.log(`SmoothTileTransition: Exit animation ${transitionType} for tile ${tile.id}`);
             
             // Temporarily make tile visible for animation by manipulating the mesh
             tile.mesh.visible = true;
@@ -219,7 +214,6 @@ Hooks.on("destroyTile", (tile) => {
 function updateTileHUDVisibility(tileId, isAnimating) {
     // Find the tile object
     const btn = document.querySelector(`#tile-hud [data-action="visibility"]`);
-    console.log('SmoothTileTransition: Update tile HUD visibility', btn);
     if (!btn) return;
     
     // Check if the tile has a HUD and if it's currently rendered
@@ -318,7 +312,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                             tile.mesh.scale.set(originalScale.x, originalScale.y);
                         }
                     } catch (error) {
-                        console.log('SmoothTileTransition: Error restoring tile properties after fade out:', error);
+                        console.log('SmoothTileTransition: Error restoring tile properties:', error);
                     }
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
@@ -351,7 +345,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                             tile.mesh.alpha = originalOpacity;
                             tile.mesh.scale.set(originalScale.x, originalScale.y);
                         } catch (error) {
-                            console.log('SmoothTileTransition: Error restoring tile properties after zoom out:', error);
+                            console.log('SmoothTileTransition: Error restoring tile properties:', error);
                         }
                         animatingTiles.delete(tile.id);
                         updateTileHUDVisibility(tile.id, false);
@@ -389,7 +383,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                             tile.mesh.alpha = originalOpacity;
                             tile.mesh.scale.set(originalScale.x, originalScale.y);
                         } catch (error) {
-                            console.log('SmoothTileTransition: Error restoring tile properties after zoom in:', error);
+                            console.log('SmoothTileTransition: Error restoring tile properties:', error);
                         }
                         animatingTiles.delete(tile.id);
                         updateTileHUDVisibility(tile.id, false);
@@ -423,7 +417,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.x = originalX;
                     } catch (error) {
-                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                        console.log('SmoothTileTransition: Error restoring tile properties:', error);
                     }
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
@@ -452,7 +446,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.x = originalX;
                     } catch (error) {
-                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                        console.log('SmoothTileTransition: Error restoring tile properties:', error);
                     }
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
@@ -481,7 +475,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.y = originalY;
                     } catch (error) {
-                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                        console.log('SmoothTileTransition: Error restoring tile properties:', error);
                     }
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
@@ -510,7 +504,7 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                         tile.mesh.alpha = originalOpacity;
                         tile.mesh.y = originalY;
                     } catch (error) {
-                        console.log('SmoothTileTransition: Error restoring tile properties after slide out:', error);
+                        console.log('SmoothTileTransition: Error restoring tile properties:', error);
                     }
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
@@ -557,7 +551,6 @@ function animateProperty(object, property, from, to, duration, timingFunction, o
     function animate() {
         // Check if object still exists
         if (!object || object.destroyed) {
-            console.log('SmoothTileTransition: Animation stopped - object destroyed');
             if (onComplete) onComplete();
             return;
         }
@@ -621,7 +614,6 @@ function animateZoomAndFade(object, scaleFrom, scaleTo, alphaFrom, alphaTo, dura
     function animate() {
         // Check if object still exists
         if (!object || object.destroyed) {
-            console.log('SmoothTileTransition: Animation stopped - object destroyed');
             if (onComplete) onComplete();
             return;
         }
@@ -693,7 +685,6 @@ function animateSlideAndFade(object, property, slideFrom, slideTo, alphaFrom, al
     function animate() {
         // Check if object still exists
         if (!object || object.destroyed) {
-            console.log('SmoothTileTransition: Animation stopped - object destroyed');
             if (onComplete) onComplete();
             return;
         }
