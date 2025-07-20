@@ -1,0 +1,208 @@
+/* Smooth Tile Transition Module Styles */
+
+/* Animation tab styling */
+.tile-config .tab[data-tab="animation"] {
+    padding: 10px;
+}
+
+.tile-config .tab[data-tab="animation"] .form-group {
+    margin-bottom: 15px;
+}
+
+.tile-config .tab[data-tab="animation"] label {
+    font-weight: bold;
+    color: #4b4a44;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.tile-config .tab[data-tab="animation"] input[type="number"],
+.tile-config .tab[data-tab="animation"] select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #7a7971;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.tile-config .tab[data-tab="animation"] input[type="checkbox"] {
+    margin-left: 10px;
+}
+
+/* Animation preview area */
+.tile-config .tab[data-tab="animation"] .animation-preview {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.tile-config .tab[data-tab="animation"] .animation-preview h3 {
+    margin: 0 0 10px 0;
+    color: #4b4a44;
+    font-size: 14px;
+}
+
+/* Animation type descriptions */
+.tile-config .tab[data-tab="animation"] .animation-description {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+/* Easing preview */
+.tile-config .tab[data-tab="animation"] .easing-preview {
+    margin-top: 10px;
+    height: 30px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.tile-config .tab[data-tab="animation"] .easing-preview::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #4b4a44;
+    transform: translateY(-50%);
+}
+
+/* Animation status indicator */
+.tile-config .tab[data-tab="animation"] .animation-status {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.tile-config .tab[data-tab="animation"] .animation-status.enabled {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    color: #006600;
+}
+
+.tile-config .tab[data-tab="animation"] .animation-status.disabled {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    color: #660000;
+}
+
+/* Help text styling */
+.tile-config .tab[data-tab="animation"] .help-text {
+    font-size: 11px;
+    color: #888;
+    margin-top: 5px;
+    line-height: 1.3;
+}
+
+/* Animation trigger options */
+.tile-config .tab[data-tab="animation"] .trigger-options {
+    margin-top: 10px;
+}
+
+.tile-config .tab[data-tab="animation"] .trigger-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.tile-config .tab[data-tab="animation"] .trigger-option input[type="radio"] {
+    margin-right: 8px;
+}
+
+/* Animation duration slider */
+.tile-config .tab[data-tab="animation"] .duration-slider {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.tile-config .tab[data-tab="animation"] .duration-value {
+    text-align: center;
+    font-weight: bold;
+    color: #4b4a44;
+    margin-top: 5px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .tile-config .tab[data-tab="animation"] {
+        padding: 5px;
+    }
+    
+    .tile-config .tab[data-tab="animation"] .form-group {
+        margin-bottom: 10px;
+    }
+    
+    .tile-config .tab[data-tab="animation"] input[type="number"],
+    .tile-config .tab[data-tab="animation"] select {
+        font-size: 14px;
+        padding: 8px;
+    }
+}
+
+/* Animation performance optimizations */
+.tile-animating {
+    will-change: transform, opacity;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+/* Smooth transitions for UI elements */
+.tile-config .tab[data-tab="animation"] * {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Focus states for accessibility */
+.tile-config .tab[data-tab="animation"] input:focus,
+.tile-config .tab[data-tab="animation"] select:focus {
+    outline: 2px solid #4b4a44;
+    outline-offset: 2px;
+}
+
+/* Animation type icons */
+.tile-config .tab[data-tab="animation"] .animation-type-icon {
+    margin-right: 5px;
+    color: #4b4a44;
+}
+
+/* Loop animation indicator */
+.tile-config .tab[data-tab="animation"] .loop-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4b4a44;
+    margin-left: 5px;
+}
+
+/* Animation trigger preview */
+.tile-config .tab[data-tab="animation"] .trigger-preview {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 3px;
+    font-size: 11px;
+    color: #666;
+}
+
+/* Error states */
+.tile-config .tab[data-tab="animation"] .error {
+    color: #d63384;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* Success states */
+.tile-config .tab[data-tab="animation"] .success {
+    color: #198754;
+    font-size: 11px;
+    margin-top: 5px;
+} 

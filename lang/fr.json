@@ -1,0 +1,90 @@
+{
+    "smooth-tile-transition": {
+        "settings": {
+            "default-duration": {
+                "name": "Durée d'animation par défaut (ms)",
+                "hint": "Durée par défaut des animations de tiles en millisecondes"
+            },
+            "default-easing": {
+                "name": "Easing par défaut",
+                "hint": "Fonction d'easing par défaut pour les animations de tiles"
+            },
+            "enable-animations": {
+                "name": "Activer les animations",
+                "hint": "Activer ou désactiver les animations de tiles globalement"
+            },
+            "default-delay": {
+                "name": "Délai d'animation par défaut (ms)",
+                "hint": "Délai par défaut avant le début de l'animation en millisecondes"
+            },
+            "show-notifications": {
+                "name": "Afficher les notifications",
+                "hint": "Afficher les notifications quand les animations sont déclenchées (MJ uniquement)"
+            },
+            "debug-mode": {
+                "name": "Mode débogage",
+                "hint": "Activer les logs de débogage dans la console (MJ uniquement)"
+            }
+        },
+        "notifications": {
+            "welcome": "Module Smooth Tile Transition chargé avec succès !",
+            "animation-triggered": "Animation de tile déclenchée",
+            "animation-complete": "Animation de tile terminée",
+            "error-tile-not-found": "Tile non trouvée pour l'animation"
+        },
+        "tab": {
+            "title": "Animation"
+        },
+        "animation": {
+            "enabled": "Activer l'animation",
+            "type": "Type d'animation",
+            "duration": "Durée (ms)",
+            "delay": "Délai (ms)",
+            "easing": "Easing",
+            "loop": "Boucler l'animation",
+            "trigger": "Déclencheur"
+        },
+        "animations": {
+            "fade-in": "Apparition en fondu",
+            "fade-out": "Disparition en fondu",
+            "pop-in": "Apparition en pop",
+            "pop-out": "Disparition en pop",
+            "slide-in-left": "Glissement depuis la gauche",
+            "slide-in-right": "Glissement depuis la droite",
+            "slide-in-top": "Glissement depuis le haut",
+            "slide-in-bottom": "Glissement depuis le bas",
+            "scale-in": "Agrandissement",
+            "scale-out": "Rétrécissement",
+            "rotate-in": "Rotation d'entrée",
+            "rotate-out": "Rotation de sortie"
+        },
+        "easing": {
+            "linear": "Linéaire",
+            "ease-in": "Accélération",
+            "ease-out": "Décélération",
+            "ease-in-out": "Accélération-décélération",
+            "bounce": "Rebond",
+            "elastic": "Élastique"
+        },
+        "triggers": {
+            "on-visible": "À l'activation de la scène",
+            "on-click": "Au clic",
+            "manual": "Manuel"
+        },
+        "help": {
+            "title": "Aide Smooth Tile Transition",
+            "description": "Ce module ajoute des capacités d'animation fluides aux tiles dans Foundry VTT.",
+            "usage": "Pour utiliser les animations :",
+            "step1": "1. Sélectionnez une tile sur le canvas",
+            "step2": "2. Ouvrez la configuration de la tile",
+            "step3": "3. Allez dans l'onglet 'Animation'",
+            "step4": "4. Configurez vos paramètres d'animation souhaités",
+            "step5": "5. Sauvegardez la configuration de la tile",
+            "macros": "Commandes de macro :",
+            "macro1": "SmoothTileTransitionAPI.triggerTileAnimation('tileId') - Déclencher l'animation d'une tile spécifique",
+            "macro2": "SmoothTileTransitionAPI.triggerAllTileAnimations() - Déclencher toutes les animations de tiles de la scène",
+            "macro3": "SmoothTileTransitionAPI.getTileAnimation('tileId') - Obtenir les données d'animation d'une tile",
+            "macro4": "SmoothTileTransitionAPI.setTileAnimation('tileId', animationData) - Définir l'animation d'une tile"
+        }
+    }
+} 

@@ -1,0 +1,32 @@
+{
+    "id": "smooth-tile-transition",
+    "title": "Smooth Tile Transition",
+    "description": "Adds smooth appearance/disappearance transitions to tiles using PIXI.js",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Tomva",
+            "email": "tomva@example.com"
+        }
+    ],
+    "languages": [
+        {
+            "lang": "fr",
+            "name": "Français",
+            "path": "lang/fr.json"
+        }
+    ],
+    "esmodules": [
+        "index.js"
+    ],
+    "styles": [],
+    "packs": [],
+    "url": "",
+    "manifest": "",
+    "download": "",
+    "relationships": {},
+    "compatibility": {
+        "minimum": "13",
+        "verified": "13"
+    }
+} 

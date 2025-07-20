@@ -1,0 +1,90 @@
+{
+    "smooth-tile-transition": {
+        "settings": {
+            "default-duration": {
+                "name": "Default Animation Duration (ms)",
+                "hint": "Default duration for tile animations in milliseconds"
+            },
+            "default-easing": {
+                "name": "Default Easing",
+                "hint": "Default easing function for tile animations"
+            },
+            "enable-animations": {
+                "name": "Enable Animations",
+                "hint": "Enable or disable tile animations globally"
+            },
+            "default-delay": {
+                "name": "Default Animation Delay (ms)",
+                "hint": "Default delay before animation starts in milliseconds"
+            },
+            "show-notifications": {
+                "name": "Show Notifications",
+                "hint": "Show notifications when animations are triggered (GM only)"
+            },
+            "debug-mode": {
+                "name": "Debug Mode",
+                "hint": "Enable debug logging in console (GM only)"
+            }
+        },
+        "notifications": {
+            "welcome": "Smooth Tile Transition module loaded successfully!",
+            "animation-triggered": "Tile animation triggered",
+            "animation-complete": "Tile animation completed",
+            "error-tile-not-found": "Tile not found for animation"
+        },
+        "tab": {
+            "title": "Animation"
+        },
+        "animation": {
+            "enabled": "Enable Animation",
+            "type": "Animation Type",
+            "duration": "Duration (ms)",
+            "delay": "Delay (ms)",
+            "easing": "Easing",
+            "loop": "Loop Animation",
+            "trigger": "Trigger"
+        },
+        "animations": {
+            "fade-in": "Fade In",
+            "fade-out": "Fade Out",
+            "pop-in": "Pop In",
+            "pop-out": "Pop Out",
+            "slide-in-left": "Slide In (Left)",
+            "slide-in-right": "Slide In (Right)",
+            "slide-in-top": "Slide In (Top)",
+            "slide-in-bottom": "Slide In (Bottom)",
+            "scale-in": "Scale In",
+            "scale-out": "Scale Out",
+            "rotate-in": "Rotate In",
+            "rotate-out": "Rotate Out"
+        },
+        "easing": {
+            "linear": "Linear",
+            "ease-in": "Ease In",
+            "ease-out": "Ease Out",
+            "ease-in-out": "Ease In Out",
+            "bounce": "Bounce",
+            "elastic": "Elastic"
+        },
+        "triggers": {
+            "on-visible": "On Scene Visible",
+            "on-click": "On Click",
+            "manual": "Manual"
+        },
+        "help": {
+            "title": "Smooth Tile Transition Help",
+            "description": "This module adds smooth animation capabilities to tiles in Foundry VTT.",
+            "usage": "To use animations:",
+            "step1": "1. Select a tile on the canvas",
+            "step2": "2. Open the tile configuration",
+            "step3": "3. Go to the 'Animation' tab",
+            "step4": "4. Configure your desired animation settings",
+            "step5": "5. Save the tile configuration",
+            "macros": "Macro Commands:",
+            "macro1": "SmoothTileTransitionAPI.triggerTileAnimation('tileId') - Trigger animation for specific tile",
+            "macro2": "SmoothTileTransitionAPI.triggerAllTileAnimations() - Trigger all tile animations in scene",
+            "macro3": "SmoothTileTransitionAPI.getTileAnimation('tileId') - Get animation data for tile",
+            "macro4": "SmoothTileTransitionAPI.setTileAnimation('tileId', animationData) - Set animation for tile"
+        }
+    }
+} 
