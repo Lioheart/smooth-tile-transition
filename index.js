@@ -7,7 +7,8 @@ import { MODULE_ID } from "./scripts/constants/module.js";
 const TRANSITION_TYPES = {
     NONE: "none",
     FADE_IN_OUT: "fade_in_out",
-    ZOOM_IN_OUT: "zoom_in_out"
+    ZOOM_IN_OUT: "zoom_in_out",
+    ZOOM_OUT_IN: "zoom_out_in"
 };
 
 // Store previous visibility states in memory (not in tile flags)
@@ -36,6 +37,7 @@ Hooks.on("renderTileConfig", (app, html, data) => {
                     <option value="${TRANSITION_TYPES.NONE}" ${currentTransition === TRANSITION_TYPES.NONE ? 'selected' : ''}>None</option>
                     <option value="${TRANSITION_TYPES.FADE_IN_OUT}" ${currentTransition === TRANSITION_TYPES.FADE_IN_OUT ? 'selected' : ''}>Fade In/Out</option>
                     <option value="${TRANSITION_TYPES.ZOOM_IN_OUT}" ${currentTransition === TRANSITION_TYPES.ZOOM_IN_OUT ? 'selected' : ''}>Zoom In/Out</option>
+                    <option value="${TRANSITION_TYPES.ZOOM_OUT_IN}" ${currentTransition === TRANSITION_TYPES.ZOOM_OUT_IN ? 'selected' : ''}>Zoom Out/In</option>
                 </select>
             </div>
         </div>
@@ -52,6 +54,19 @@ Hooks.on("renderTileConfig", (app, html, data) => {
                 <span style="text-align: center;">${currentDuration}s</span>
             </div>
         </div>
+        <div class="form-group">
+            <label for="flags.${MODULE_ID}.movementIntensity">Movement Intensity (%)</label>
+            <div class="form-fields">
+                <input type="range" 
+                       name="flags.${MODULE_ID}.movementIntensity" 
+                       value="${app.document.getFlag(MODULE_ID, "movementIntensity") ?? 10}" 
+                       min="0" 
+                       max="100" 
+                       step="1" 
+                       style="flex: 10;">
+                <span style="text-align: center;">${app.document.getFlag(MODULE_ID, "movementIntensity") ?? 10}%</span>
+            </div>
+        </div>
     </fieldset>
     `;
     
@@ -66,6 +81,15 @@ Hooks.on("renderTileConfig", (app, html, data) => {
         if (durationInput && durationDisplay) {
             durationInput.addEventListener('input', (e) => {
                 durationDisplay.textContent = `${e.target.value}s`;
+            });
+        }
+        
+        // Add event listener for movement intensity
+        const intensityInput = html.querySelector(`[name="flags.${MODULE_ID}.movementIntensity"]`);
+        const intensityDisplay = intensityInput?.nextElementSibling;
+        if (intensityInput && intensityDisplay) {
+            intensityInput.addEventListener('input', (e) => {
+                intensityDisplay.textContent = `${e.target.value}%`;
             });
         }
         
@@ -222,6 +246,9 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
     // Get duration from tile flags, default to 1 second
     const duration = (tile.document.getFlag(MODULE_ID, "transitionDuration") ?? 1.0) * 1000;
     
+    // Get movement intensity from tile flags, default to 10%
+    const movementIntensity = (tile.document.getFlag(MODULE_ID, "movementIntensity") ?? 10) / 100;
+    
     // Mark tile as animating
     animatingTiles.add(tile.id);
     
@@ -281,9 +308,9 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
             
         case TRANSITION_TYPES.ZOOM_IN_OUT:
             if (isAppearing) {
-                // Zoom In + Fade In on appearance (0.9 -> 1.0)
+                // Zoom In + Fade In on appearance (1-intensity -> 1.0)
                 if (tile.mesh.scale && originalScale) {
-                    const startScale = 0.9;
+                    const startScale = 1 - movementIntensity;
                     tile.mesh.alpha = 0;
                     tile.mesh.scale.set(originalScale.x * startScale, originalScale.y * startScale);
                     animateZoomAndFade(tile.mesh, startScale, 1, 0, originalOpacity, duration, originalScale, () => {
@@ -295,9 +322,9 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                     updateTileHUDVisibility(tile.id, false);
                 }
             } else {
-                // Zoom Out + Fade Out on disappearance (1.0 -> 0.9)
+                // Zoom Out + Fade Out on disappearance (1.0 -> 1-intensity)
                 if (tile.mesh.scale && originalScale) {
-                    animateZoomAndFade(tile.mesh, 1, 0.9, currentOpacity, 0, duration, originalScale, () => {
+                    animateZoomAndFade(tile.mesh, 1, 1 - movementIntensity, currentOpacity, 0, duration, originalScale, () => {
                         // Restore original values after zoom out
                         try {
                             tile.mesh.alpha = originalOpacity;
@@ -309,6 +336,44 @@ function applyTileAnimation(tile, transitionType, isAppearing, onComplete = null
                         updateTileHUDVisibility(tile.id, false);
                         if (onComplete) onComplete();
                     });
+                } else {
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                    if (onComplete) onComplete();
+                }
+            }
+            break;
+            
+        case TRANSITION_TYPES.ZOOM_OUT_IN:
+            if (isAppearing) {
+                // Zoom Out + Fade In on appearance (1+intensity -> 1.0)
+                if (tile.mesh.scale && originalScale) {
+                    const startScale = 1 + movementIntensity;
+                    tile.mesh.alpha = 0;
+                    tile.mesh.scale.set(originalScale.x * startScale, originalScale.y * startScale);
+                    animateZoomAndFade(tile.mesh, startScale, 1, 0, originalOpacity, duration, originalScale, () => {
+                        animatingTiles.delete(tile.id);
+                        updateTileHUDVisibility(tile.id, false);
+                    });
+                } else {
+                    animatingTiles.delete(tile.id);
+                    updateTileHUDVisibility(tile.id, false);
+                }
+            } else {
+                // Zoom In + Fade Out on disappearance (1.0 -> 1+intensity)
+                if (tile.mesh.scale && originalScale) {
+                    animateZoomAndFade(tile.mesh, 1, 1 + movementIntensity, currentOpacity, 0, duration, originalScale, () => {
+                        // Restore original values after zoom in
+                        try {
+                            tile.mesh.alpha = originalOpacity;
+                            tile.mesh.scale.set(originalScale.x, originalScale.y);
+                        } catch (error) {
+                            console.log('SmoothTileTransition: Error restoring tile properties after zoom in:', error);
+                        }
+                        animatingTiles.delete(tile.id);
+                        updateTileHUDVisibility(tile.id, false);
+                        if (onComplete) onComplete();
+                        });
                 } else {
                     animatingTiles.delete(tile.id);
                     updateTileHUDVisibility(tile.id, false);
