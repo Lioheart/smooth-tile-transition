@@ -2,6 +2,10 @@
 
 A Foundry VTT module that adds smooth transition capabilities to tiles when toggling visibility state. Features fade, zoom, and slide transitions with customizable duration and easing (ease, linear, bounce).
 
+## Youtube video showcase
+
+[![Smooth Tile Transition Demo](https://img.youtube.com/vi/AslW6fvl-2g/0.jpg)](https://www.youtube.com/watch?v=AslW6fvl-2g)
+
 ## Features
 
 - **Multiple Animation Transition Types**: Fade, zoom in/out, zoom out/in, slide from left, slide from right, slide from top, slide from bottom
