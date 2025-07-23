@@ -1,5 +1,7 @@
 # Smooth Tile Transition
 
+![Download Count](https://img.shields.io/github/downloads/Tendrael/smooth-tile-transition/module.zip?color=77ccd5&label=DOWNLOADS&style=for-the-badge)
+
 A Foundry VTT module that adds smooth transition capabilities to tiles when toggling visibility state. Features fade, zoom, and slide transitions with customizable duration and easing (ease, linear, bounce).
 
 ## Youtube video showcase
