@@ -1,0 +1,22 @@
+{
+    "smooth-tile-transition": {
+        "ui": {
+            "animationTransitions": "Przejścia animacji",
+            "type": "Typ",
+            "none": "Brak",
+            "fadeInOut": "Pojawianie się / Znikanie",
+            "zoomInOut": "Przybliż / Oddal",
+            "zoomOutIn": "Oddal / Przybliż ",
+            "slideFromLeft": "Ślizg z lewej strony",
+            "slideFromRight": "Ślizg z prawej strony",
+            "slideFromTop": "Ślizg od góry",
+            "slideFromBottom": "Ślizg od dołu",
+            "duration": "Czas trwania (sekundy)",
+            "movementIntensity": "Intensywność ruchu (%)",
+            "timingFunction": "Funkcja czasowa",
+            "ease": "Wygładzanie",
+            "linear": "Liniowy",
+            "bounce": "Odbijanie"
+        }
+    }
+} 
