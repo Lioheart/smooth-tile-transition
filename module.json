@@ -44,6 +44,11 @@
             "lang": "pt",
             "name": "Português",
             "path": "lang/pt.json"
+        },
+        {
+            "lang": "pl",
+            "name": "Polski",
+            "path": "lang/pl.json"
         }
     ],
     "esmodules": [
